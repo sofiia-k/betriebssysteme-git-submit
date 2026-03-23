@@ -1,7 +1,15 @@
 #!/bin/bash
 
-echo "Running git submit..."
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+	echo "Error: Not a git repository"
+	exit 1
+fi
+
+message="$1"
+if [ -z "$message" ]; then
+    message="auto commit $(date)"
+fi
 
 git add .
-git commit -m "auto commit"
+git commit -m "$message"
 git push
