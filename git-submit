@@ -1,9 +1,13 @@
 #!/bin/bash
 
+#Pruefen, ob wir uns in Git befinden
+
 if ! git rev-parse --git-dir > /dev/null 2>&1; then
 	echo "Error: Not a git repository"
 	exit 1
 fi
+
+#Pruefen ob eine Zeile leer ist
 
 message="$1"
 if [ -z "$message" ]; then
@@ -11,5 +15,22 @@ if [ -z "$message" ]; then
 fi
 
 git add .
-git commit -m "$message"
-git push
+git commit -m "$message" 2>/dev/null || echo "Nothing to commit"
+
+#Wir suchen nach einem benutzten Ast
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+echo "Branch: $branch"
+
+# Pruefen ob Git scho weisst wohin die Aenderungen schicken muss
+#Falls ja, pusht (GitHub)
+
+upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)
+
+if [ -z "$upstream" ]; then
+	git push --set-upstream origin "$branch"
+else
+	git push
+fi
+
+echo "done:)"
